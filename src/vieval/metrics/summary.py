@@ -8,6 +8,8 @@ from .utils import normalize_text
 
 
 class SummaryMetric(BaseMetric):
+    """Evaluate the quality of text summaries."""
+
     def __init__(self):
         super().__init__()
         import warnings
@@ -30,6 +32,14 @@ class SummaryMetric(BaseMetric):
         )
 
     def evaluate(self, data: Dict, args) -> (Dict, Dict):
+        """Evaluates the generated summaries against reference summaries and computes various metrics to assess the quality of the generated summaries.
+
+        Args:
+            data (Dict): A dictionary expected to contain original_documents, predictions, and references as keys.
+
+        Returns:
+            Returns a tuple containing the original data dictionary and the result dictionary with all the computed metrics.
+        """
         inputs = data["original_documents"]
         raw_predictions = data["predictions"]
         predictions = [self._get_answer(r, args) for r in raw_predictions]
@@ -40,9 +50,7 @@ class SummaryMetric(BaseMetric):
 
         print("BERT score")
         p, r, f = self.bert_scorer.score(
-            predictions,
-            [[ref] for ref in references],
-            batch_size=args.bs
+            predictions, [[ref] for ref in references], batch_size=args.bs
         )
         result.update(
             {
